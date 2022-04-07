@@ -5,42 +5,28 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node",
+            "type": "pwa-node",
             "request": "launch",
-            "name": "Test",
-            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
-            "args": [
-              "--require", "reify"
-            ],
-            "internalConsoleOptions": "openOnSessionStart"
-        },
-        {
-            "args": [
-                "-u",
-                "tdd",
-                "--timeout",
-                "999999",
-                "--colors",
-                "--require", "reify",
-                "${workspaceFolder}/test"
-            ],
-            "internalConsoleOptions": "openOnSessionStart",
-            "name": "Mocha Tests",
-            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
-            "request": "launch",
+            "name": "Test BN128",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "type": "pwa-node"
+            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "${workspaceFolder}/test/bn128.js"
+            ]
         },
         {
             "type": "pwa-node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "Test Algebra",
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/build/main.cjs"
+            "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "${workspaceFolder}/test/algebra.js"
+            ]
         }
     ]
 }

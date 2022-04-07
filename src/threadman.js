@@ -1,4 +1,4 @@
-/* global window, navigator, Blob, Worker, WebAssembly */
+/* global navigator, WebAssembly */
 /*
     Copyright 2019 0KIMS association.
 
@@ -38,23 +38,9 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function base64ToArrayBuffer(base64) {
-    if (process.browser) {
-        var binary_string = window.atob(base64);
-        var len = binary_string.length;
-        var bytes = new Uint8Array(len);
-        for (var i = 0; i < len; i++) {
-            bytes[i] = binary_string.charCodeAt(i);
-        }
-        return bytes;
-    } else {
-        return new Uint8Array(Buffer.from(base64, "base64"));
-    }
-}
-
 function stringToBase64(str) {
     if (process.browser) {
-        return window.btoa(str);
+        return globalThis.btoa(str);
     } else {
         return Buffer.from(str).toString("base64");
     }
@@ -71,7 +57,7 @@ export default async function buildThreadManager(wasm, singleThread) {
     tm.u8 = new Uint8Array(tm.memory.buffer);
     tm.u32 = new Uint32Array(tm.memory.buffer);
 
-    const wasmModule = await WebAssembly.compile(base64ToArrayBuffer(wasm.code));
+    const wasmModule = await WebAssembly.compile(wasm.code);
 
 
     tm.instance = await WebAssembly.instantiate(wasmModule, {
@@ -98,8 +84,8 @@ export default async function buildThreadManager(wasm, singleThread) {
 
 
     if (singleThread) {
-        tm.code = base64ToArrayBuffer(wasm.code);
-        tm.taskManager = new Worker(workerSource);
+        tm.code = wasm.code;
+        tm.taskManager = thread();
         await tm.taskManager([{
             cmd: "INIT",
             init: MEM_SIZE,
@@ -119,6 +105,11 @@ export default async function buildThreadManager(wasm, singleThread) {
         } else {
             concurrency = os.cpus().length;
         }
+
+        if(concurrency == 0){
+            concurrency = 2;
+        }
+
         // Limit to 64 threads for memory reasons.
         if (concurrency>64) concurrency=64;
         tm.concurrency = concurrency;
@@ -136,7 +127,7 @@ export default async function buildThreadManager(wasm, singleThread) {
 
         const initPromises = [];
         for (let i=0; i<tm.workers.length;i++) {
-            const copyCode = base64ToArrayBuffer(wasm.code).slice();
+            const copyCode = wasm.code.slice();
             initPromises.push(tm.postAction(i, [{
                 cmd: "INIT",
                 init: MEM_SIZE,

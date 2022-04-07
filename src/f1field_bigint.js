@@ -1,6 +1,7 @@
 import bigInt from "big-integer";
 import buildSqrt from "./fsqrt.js";
 import {getRandomBytes} from "./random.js";
+import * as FFFT from "./fft.js";
 
 export default class ZqField {
     constructor(p) {
@@ -40,6 +41,10 @@ export default class ZqField {
         this.nqr_to_t = this.pow(this.nqr, this.t);
 
         buildSqrt(this);
+
+        this.FFT = new FFFT(this, this, this.mul.bind(this));
+
+        this.shift = this.square(this.nqr);
     }
 
     e(a,b) {
@@ -254,8 +259,9 @@ export default class ZqField {
     }
 
     toString(a, base) {
+        base = base || 10;
         let vs;
-        if (!a.lesserOrEquals(this.p.shiftRight(bigInt(1)))) {
+        if ((!a.lesserOrEquals(this.p.shiftRight(bigInt(1))))&&(base==10)) {
             const v = this.p.minus(a);
             vs = "-"+v.toString(base);
         } else {
@@ -282,6 +288,13 @@ export default class ZqField {
         return v;
     }
 
+    fft(a) {
+        return this.FFT.fft(a);
+    }
+
+    ifft(a) {
+        return this.FFT.ifft(a);
+    }
 
 }
 
