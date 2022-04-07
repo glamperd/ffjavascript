@@ -5240,7 +5240,7 @@ function buildBatchApplyKey(curve, groupName) {
 
         const result = await Promise.all(opPromises);
 
-        if (progress.progressCallback) progress.progressCallback({type: "end-chunk", count: nPoints});
+        if (progress && progress.progressCallback) progress.progressCallback({type: "end-chunk", count: nPoints});
 
         let outBuff;
         if (buff instanceof BigBuffer) {
