@@ -34,7 +34,7 @@
   "dependencies": {
     "@babel/runtime": "^7.14.6",
     "big-integer": "^1.6.48",
-    "wasmcurves": "file:../wasmcurves",
+    "wasmcurves": "0.1.0",
     "wasmbuilder": "^0.0.12",
     "web-worker": "^1.2.0"
   },

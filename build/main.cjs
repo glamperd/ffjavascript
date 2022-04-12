@@ -6,7 +6,6 @@ var bigInt = require('big-integer');
 var crypto = require('crypto');
 var wasmcurves = require('wasmcurves');
 var os = require('os');
-var Worker = require('web-worker');
 var wasmbuilder = require('wasmbuilder');
 
 function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
@@ -5256,7 +5255,7 @@ async function buildThreadManager(wasm, singleThread) {
 
         for (let i = 0; i<concurrency; i++) {
 
-            tm.workers[i] = new Worker__default["default"](workerSource);
+            tm.workers[i] = new Worker(workerSource);
 
             tm.workers[i].addEventListener("message", getOnMsg(i));
 
@@ -6711,8 +6710,8 @@ async function buildBls12381(singleThread, plugins) {
     bls12381wasm.preQSize = moduleBuilder.modules.bls12381.preQSize;
     bls12381wasm.n8q = 48;
     bls12381wasm.n8r = 32;
-    bls12381wasm.q = moduleBuilder.modules.bn128.q;
-    bls12381wasm.r = moduleBuilder.modules.bn128.r;
+    bls12381wasm.q = moduleBuilder.modules.bls12381.q;
+    bls12381wasm.r = moduleBuilder.modules.bls12381.r;
 
 
     if ((!singleThread) && (globalThis.curve_bls12381)) return globalThis.curve_bls12381;
@@ -6756,7 +6755,7 @@ async function getCurveFromR(r, singleThread, plugins) {
     } else if (eq(r, bls12381r)) {
         curve = await buildBls12381(singleThread, plugins);
     } else {
-        throw new Error(`Curve not supported: ${toString(r)}`);
+        throw new Error(`Curve not supported: ${toString(r, 16)}`);
     }
     return curve;
 }
@@ -6768,7 +6767,7 @@ async function getCurveFromQ(q, singleThread, plugins) {
     } else if (eq(q, bls12381q)) {
         curve = await buildBls12381(singleThread, plugins);
     } else {
-        throw new Error(`Curve not supported: ${toString(q)}`);
+        throw new Error(`Curve not supported: ${toString(q, 16)}`);
     }
     return curve;
 }
